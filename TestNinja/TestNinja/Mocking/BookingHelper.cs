@@ -30,25 +30,6 @@ namespace TestNinja.Mocking
         }
     }
 
-    public interface IBookingManager
-    {
-        IEnumerable<Booking> GetActiveBookingList(Booking booking);
-    }
-
-    public class BookingManager : IBookingManager
-    {
-        public IEnumerable<Booking> GetActiveBookingList(Booking booking)
-        {
-            var unitOfWork = new UnitOfWork();
-            var bookings =
-                unitOfWork.Query<Booking>()
-                    .Where(
-                        b => b.Id != booking.Id && b.Status != "Cancelled");
-
-            return bookings;
-        }
-    }
-
     public class UnitOfWork
     {
         public IQueryable<T> Query<T>()
