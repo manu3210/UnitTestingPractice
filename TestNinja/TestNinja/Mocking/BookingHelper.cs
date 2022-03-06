@@ -4,28 +4,48 @@ using System.Linq;
 
 namespace TestNinja.Mocking
 {
-    public static class BookingHelper
+    public class BookingHelper
     {
-        public static string OverlappingBookingsExist(Booking booking)
+        private readonly IBookingManager _bookingManager;
+
+        public BookingHelper(IBookingManager bookingManager)
+        {
+            _bookingManager = bookingManager;
+        }
+
+        public string OverlappingBookingsExist(Booking booking)
         {
             if (booking.Status == "Cancelled")
                 return string.Empty;
 
+            var bookings = _bookingManager.GetActiveBookingList(booking);
+
+            var overlappingBooking =
+                bookings.FirstOrDefault(
+                    b =>
+                        booking.ArrivalDate < b.DepartureDate
+                        && booking.DepartureDate > b.ArrivalDate);
+
+            return overlappingBooking == null ? string.Empty : overlappingBooking.Reference;
+        }
+    }
+
+    public interface IBookingManager
+    {
+        IEnumerable<Booking> GetActiveBookingList(Booking booking);
+    }
+
+    public class BookingManager : IBookingManager
+    {
+        public IEnumerable<Booking> GetActiveBookingList(Booking booking)
+        {
             var unitOfWork = new UnitOfWork();
             var bookings =
                 unitOfWork.Query<Booking>()
                     .Where(
                         b => b.Id != booking.Id && b.Status != "Cancelled");
 
-            var overlappingBooking =
-                bookings.FirstOrDefault(
-                    b =>
-                        booking.ArrivalDate >= b.ArrivalDate
-                        && booking.ArrivalDate < b.DepartureDate
-                        || booking.DepartureDate > b.ArrivalDate
-                        && booking.DepartureDate <= b.DepartureDate);
-
-            return overlappingBooking == null ? string.Empty : overlappingBooking.Reference;
+            return bookings;
         }
     }
 
