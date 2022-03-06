@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace TestNinja.Mocking
 {
-    public class BookingManager : IBookingManager
+    public class BookingStorage : IBookingStorage
     {
-        public IEnumerable<Booking> GetActiveBookingList(Booking booking)
+        public IQueryable<Booking> GetActiveBookingList(Booking booking)
         {
             var unitOfWork = new UnitOfWork();
             var bookings =

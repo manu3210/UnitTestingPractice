@@ -4,21 +4,14 @@ using System.Linq;
 
 namespace TestNinja.Mocking
 {
-    public class BookingHelper
+    public static class BookingHelper
     {
-        private readonly IBookingManager _bookingManager;
-
-        public BookingHelper(IBookingManager bookingManager)
-        {
-            _bookingManager = bookingManager;
-        }
-
-        public string OverlappingBookingsExist(Booking booking)
+        public static string OverlappingBookingsExist(Booking booking, IBookingStorage bookingStorage)
         {
             if (booking.Status == "Cancelled")
                 return string.Empty;
 
-            var bookings = _bookingManager.GetActiveBookingList(booking);
+            var bookings = bookingStorage.GetActiveBookingList(booking);
 
             var overlappingBooking =
                 bookings.FirstOrDefault(
